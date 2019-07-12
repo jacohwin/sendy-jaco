@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "177452032412",
+    "firebase_url": "https://sendy-33726.firebaseio.com",
+    "project_id": "sendy-33726",
+    "storage_bucket": "sendy-33726.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177452032412:android:ee1fd5c121f05157",
+        "android_client_info": {
+          "package_name": "com.example.sendy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "177452032412-nshbc5sa86bv1bu6su1a4gu346l3h9kj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sendy",
+            "certificate_hash": "27991d156ae27e0dd2fe7cbd3e4c8d9deeb58de5"
+          }
+        },
+        {
+          "client_id": "177452032412-qrgnko7blcu3412blpkof5jc0furhte7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVpLZuDW6IZump66nBiIXFoX8yxqh7G4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "177452032412-qrgnko7blcu3412blpkof5jc0furhte7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,5 @@
+<root>
+    <item name='android.widget.SearchView.OnQueryTextListener'>
+        <annotation name='java.lang.Deprecated' />
+    </item>
+</root>

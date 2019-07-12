@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="places_recycler_view" type="id"/>
+    <item name="place_search" type="id"/>
+    <item name="place_item_view" type="id"/>
+    <item name="place_address" type="id"/>
+    <item name="place_area" type="id"/>
+
+
+</resources>
