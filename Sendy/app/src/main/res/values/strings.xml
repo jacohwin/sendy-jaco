@@ -2,6 +2,7 @@
     <string name="google_maps_API_key">AIzaSyBH0-_akt9ELLtg5zbh8rIzG1S57Rai_-0</string>
     <string name="app_name">Sendy</string>
     <string name="google_maps_key">google_maps_key</string>
+    <string name="title_activity_map">Map</string>
 
 
 </resources>

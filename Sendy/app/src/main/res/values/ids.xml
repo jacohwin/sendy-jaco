@@ -5,6 +5,12 @@
     <item name="place_item_view" type="id"/>
     <item name="place_address" type="id"/>
     <item name="place_area" type="id"/>
+    <item name="B_search" type="id" />
+    <item name="TF_location" type="id" />
+    <item name="B_hospital" type="id" />
+    <item name="B_restaurant" type="id" />
+    <item name="B_school" type="id" />
+    <item name="B_to" type="id" />
 
 
 </resources>

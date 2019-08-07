@@ -2,6 +2,7 @@ package com.example.sendy;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.GeoApiContext;
@@ -39,11 +41,64 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private static final String TAG = "GoogleActivity";
+
+    private static final String FINE_LOCATION= Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COARSE_LOCATION= Manifest.permission.ACCESS_COARSE_LOCATION;
+    private  static final  int LOCATION_PERMISSION_REQUEST_CODE= 00100;
+
+    //widgets
+    private EditText searchText;
+    private ImageView gps;
+
+    private Boolean mLocationPermissionGranted= false;
+    private GoogleMap mMap;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private static final float DEFAULT_ZOOM = 15f;
+    private GeoApiContext geoApiContext=null;
+    private static final LatLng pickpoint = new LatLng(-1.3033805, 36.7729652);
+    private static final LatLng place1 = new LatLng(-1.3032051,36.7073074);
+    private static final LatLng place2 = new LatLng(-1.2073188,36.8970392);
+    private static final LatLng place3 = new LatLng(-1.2477467,36.8646907);
+    private static final LatLng place4 = new LatLng(-1.2613673,36.808896);
+    private static final LatLng place5 = new LatLng(-1.2810919,36.8092147);
+    private static final LatLng destination = new LatLng(-1.2542035, 36.674212);
+
+
+
+
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_google);
+        searchText = findViewById(R.id.input_search);
+
+        gps = findViewById(R.id.ic_gps);
+        getLocationPermission();
+
+    }
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Toast.makeText(this, "Map is Ready, Search your place", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onMapReady:map is ready");
         mMap = googleMap;
+
+
+
+
+        PolylineOptions polylineOptions = new PolylineOptions().add(destination).add(place1).add(place2).add(place3).add(place4).add(place5).width(5).color(Color.BLUE).geodesic(true);
+        mMap.addPolyline(polylineOptions);
+        MarkerOptions markerOptions = new MarkerOptions().visible(true).position(destination).title("Destination");
+        MarkerOptions marker= new MarkerOptions().visible(true).position(place5).title("Pickpoint");
+
+        mMap.addMarker(markerOptions);
+        mMap.addMarker(marker);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickpoint,15));
+
 
         if (mLocationPermissionGranted) {
             getCurrentLocation();
@@ -61,32 +116,6 @@ public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
-    private static final String TAG = "GoogleActivity";
-
-    private static final String FINE_LOCATION= Manifest.permission.ACCESS_FINE_LOCATION;
-    private static final String COARSE_LOCATION= Manifest.permission.ACCESS_COARSE_LOCATION;
-    private  static final  int LOCATION_PERMISSION_REQUEST_CODE= 00100;
-
-    //widgets
-    private EditText searchText;
-    private ImageView gps;
-
-    private Boolean mLocationPermissionGranted= false;
-    private GoogleMap mMap;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private static final float DEFAULT_ZOOM = 10f;
-    private GeoApiContext geoApiContext=null;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_google);
-        searchText = findViewById(R.id.input_search);
-
-        gps = findViewById(R.id.ic_gps);
-        getLocationPermission();
-
-    }
     private void init(){
         Log.d(TAG, "init:initializing ");
 
