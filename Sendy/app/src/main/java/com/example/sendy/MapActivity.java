@@ -66,13 +66,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         GoogleMap.OnMarkerDragListener{
 
     private GoogleMap mMap;
-    private MarkerOptions place1, place2;
+//    private MarkerOptions place1, place2;
     Button getDirection;
     private Polyline currentPolyline;
     private static final int REQUEST_LOCATION_PERMISSION = 254;
     private static final LatLng pickpoint = new LatLng(-1.3033805, 36.7729652);
     private static final LatLng destination = new LatLng(-1.2542035, 36.674212);
-
+    private static final LatLng place1 = new LatLng(-1.3032051,36.7073074);
+    private static final LatLng place2 = new LatLng(-1.2073188,36.8970392);
+    private static final LatLng place3 = new LatLng(-1.2477467,36.8646907);
+    private static final LatLng place4 = new LatLng(-1.2613673,36.808896);
+    private static final LatLng place5 = new LatLng(-1.2810919,36.8092147);
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
@@ -89,18 +93,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         getDirection = findViewById(R.id.btnGetDirection);
+        TrackMyroute();
 
 
+//
+//        getDirection.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                new FetchURL(MapActivity.this).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
+//            }
+//        });
 
-        getDirection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new FetchURL(MapActivity.this).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
-            }
-        });
-
-        place1 = new MarkerOptions().position(new LatLng(-1.3033805, 36.7729652)).title("Pickpoint ");
-        place2 = new MarkerOptions().position(new LatLng(-1.2542035, 36.674212)).title("destination ");
+//        place1 = new MarkerOptions().position(new LatLng(-1.3033805, 36.7729652)).title("Pickpoint ");
+//        place2 = new MarkerOptions().position(new LatLng(-1.2542035, 36.674212)).title("destination ");
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -118,6 +123,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         supportMapFragment.getMapAsync(this);
     }
+
+    private void TrackMyroute() {
+        int places_Array [] = new int[5];
+        String place_Array []= new String[0];
+        ArrayList<String > myList = new ArrayList<String>();
+        myList.add(String.valueOf(pickpoint));
+        myList.add(String.valueOf(destination));
+        myList.add(String.valueOf(place1));
+        myList.add(String.valueOf(place2));
+        myList.add(String.valueOf(place3));
+        myList.add(String.valueOf(place4));
+        myList.add(String.valueOf(place5));
+
+        for (String x : myList){
+            System.out.println(x);
+        }
+    }
+
     private boolean CheckGooglePlayServices() {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
         int result = googleAPI.isGooglePlayServicesAvailable(this);
@@ -135,8 +158,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         Log.d("mylog", "Added Markers");
-        mMap.addMarker(place1);
-        mMap.addMarker(place2);
+//        mMap.addMarker(place1);
+//        mMap.addMarker(place2);
 
         PolylineOptions polylineOptions = new PolylineOptions().add(pickpoint).add(destination).width(5).color(Color.BLUE).geodesic(true);
         mMap.addPolyline(polylineOptions);
@@ -156,6 +179,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerDragListener(this);
         mMap.setOnMarkerClickListener(this);
+        mMap.addPolyline(polylineOptions);
 
 
 
@@ -239,7 +263,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 dataTransfer[1] = url;
 
                 getNearbyPlacesData.execute(dataTransfer);
-                Toast.makeText(MapActivity.this, "Showing Nearby Hospitals", Toast.LENGTH_LONG).show();
+                Toast.makeText(MapActivity.this, "Showing Nearby restaurant", Toast.LENGTH_LONG).show();
                 break;
             case R.id.B_school:
                 mMap.clear();
@@ -251,7 +275,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 dataTransfer[1] = url;
 
                 getNearbyPlacesData.execute(dataTransfer);
-                Toast.makeText(MapActivity.this, "Showing Nearby Hospitals", Toast.LENGTH_LONG).show();
+                Toast.makeText(MapActivity.this, "Showing Nearby schools", Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.B_to:
@@ -310,7 +334,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onTaskDone(Object... values) {
         if (currentPolyline != null)
-            currentPolyline.remove();
+//            currentPolyline.remove();
         currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 
@@ -348,11 +372,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                //Prompt the user once explanation has been shown
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
@@ -404,6 +423,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             Log.d("onLocationChanged", "Removing Location Updates");
+        }
+
+
+    }
+
+    public static void TrackMyroute(String [] args){
+        int places_Array [] = new int[5];
+        String place_Array []= new String[0];
+        ArrayList<String > myList = new ArrayList<String>();
+        myList.add(String.valueOf(pickpoint));
+        myList.add(String.valueOf(destination));
+        myList.add(String.valueOf(place1));
+        myList.add(String.valueOf(place2));
+        myList.add(String.valueOf(place3));
+        myList.add(String.valueOf(place4));
+        myList.add(String.valueOf(place5));
+
+        for (String x : myList){
+            System.out.println(x);
         }
 
 

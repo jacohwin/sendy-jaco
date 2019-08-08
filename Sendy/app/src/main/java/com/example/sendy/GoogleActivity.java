@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -19,9 +20,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -34,13 +38,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.maps.GeoApiContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallback,BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "GoogleActivity";
 
@@ -78,6 +83,43 @@ public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallb
         gps = findViewById(R.id.ic_gps);
         getLocationPermission();
 
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(this);
+        LoadFragment(new Home());
+
+
+    }
+
+    private boolean LoadFragment (Fragment fragment){
+        if(fragment !=null){
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container,fragment)
+                    .commit();
+            return true;
+        }
+        return false;
+
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+        Fragment fragment =null;
+
+        switch (menuItem.getItemId()){
+            case R.id.navigation_home:
+                fragment = new Home();
+                break;
+            case R.id.navigation_dashboard:
+                fragment = new Dashboard();
+                break;
+            case R.id.navigation_notifications:
+                fragment = new Notifications();
+                break;
+        }
+        return LoadFragment(fragment);
     }
 
 
