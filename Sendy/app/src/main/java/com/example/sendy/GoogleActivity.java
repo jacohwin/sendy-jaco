@@ -70,6 +70,8 @@ public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallb
     private static final LatLng place5 = new LatLng(-1.2810919,36.8092147);
     private static final LatLng destination = new LatLng(-1.2542035, 36.674212);
 
+    ArrayList<LatLng> locations;
+
 
 
 
@@ -86,6 +88,18 @@ public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallb
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(this);
         LoadFragment(new Home());
+
+//        ArrayList<LatLng> locations = new ArrayList();
+        locations = new ArrayList();
+        locations.add(new LatLng(-1.3033805, 36.7729652));
+        locations.add(new LatLng(-1.3032051,36.7073074));
+        locations.add(new LatLng(-1.2073188,36.8970392));
+        locations.add(new LatLng(-1.2477467,36.8646907));
+        locations.add(new LatLng(-1.2613673,36.808896));
+        locations.add(new LatLng(-1.2810919,36.8092147));
+        locations.add(new LatLng(-1.2542035, 36.674212));
+
+
 
 
     }
@@ -132,6 +146,13 @@ public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallb
 
 
 
+        for(LatLng location : locations){
+            mMap.addMarker(new MarkerOptions()
+                    .position(location)
+                    .title("your route"));
+        }
+
+
         PolylineOptions polylineOptions = new PolylineOptions().add(destination).add(place1).add(place2).add(place3).add(place4).add(place5).width(5).color(Color.BLUE).geodesic(true);
         mMap.addPolyline(polylineOptions);
         MarkerOptions markerOptions = new MarkerOptions().visible(true).position(destination).title("Destination");
@@ -140,6 +161,7 @@ public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallb
         mMap.addMarker(markerOptions);
         mMap.addMarker(marker);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickpoint,15));
+
 
 
         if (mLocationPermissionGranted) {
