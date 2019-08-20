@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -18,13 +17,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.sendy.directionHelpers.FetchURL;
-import com.example.sendy.directionHelpers.PointsParser;
 import com.example.sendy.directionHelpers.TaskLoadedCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -34,39 +32,42 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Iterator;
 
-import javax.net.ssl.HttpsURLConnection;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback , GoogleApiClient.ConnectionCallbacks,
+
+
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, TaskLoadedCallback , GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
         GoogleMap.OnMarkerClickListener,
         GoogleMap.OnMarkerDragListener{
 
     private GoogleMap mMap;
-//    private MarkerOptions place1, place2;
     Button getDirection;
     private Polyline currentPolyline;
     private static final int REQUEST_LOCATION_PERMISSION = 254;
@@ -86,6 +87,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     double end_latitude, end_longitude;
 
 
+    private static final LatLng LOWER_MANHATTAN = new LatLng(40.722543,
+            -73.998585);
+    private static final LatLng BROOKLYN_BRIDGE = new LatLng(40.7057, -73.9964);
+    private static final LatLng WALL_STREET = new LatLng(40.7064, -74.0094);
+
+    final String TAG = "MapActivity";
+
+
+
+    final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    final SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm", Locale.US);
+    private Marker selectedMarker;
+    private SupportMapFragment mapFragment;
+
+    ArrayList<LatLng> list = new ArrayList<>();
+    ArrayList<LatLng> locations;
+    ArrayList<LatLng> markerPoints;
+
+
 
 
     @Override
@@ -93,19 +113,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         getDirection = findViewById(R.id.btnGetDirection);
-        TrackMyroute();
 
 
-//
-//        getDirection.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                new FetchURL(MapActivity.this).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
-//            }
-//        });
+        markerPoints = new ArrayList<LatLng>();
 
-//        place1 = new MarkerOptions().position(new LatLng(-1.3033805, 36.7729652)).title("Pickpoint ");
-//        place2 = new MarkerOptions().position(new LatLng(-1.2542035, 36.674212)).title("destination ");
+
+
+
+        list.add(new LatLng(-1.3033805, 36.7729652));
+        list.add(new LatLng(-1.3032051,36.7073074));
+        list.add(new LatLng(-1.2073188,36.8970392));
+        list.add(new LatLng(-1.2477467,36.8646907));
+        list.add(new LatLng(-1.2613673,36.808896));
+        list.add(new LatLng(-1.2810919,36.8092147));
+        list.add(new LatLng(-1.2542035, 36.674212));
+
+        locations = new ArrayList();
+        locations.add(new LatLng(-1.3033805, 36.7729652));
+        locations.add(new LatLng(-1.3032051,36.7073074));
+        locations.add(new LatLng(-1.2073188,36.8970392));
+        locations.add(new LatLng(-1.2477467,36.8646907));
+        locations.add(new LatLng(-1.2613673,36.808896));
+        locations.add(new LatLng(-1.2810919,36.8092147));
+        locations.add(new LatLng(-1.2542035, 36.674212));
+
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -122,24 +153,164 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         supportMapFragment.getMapAsync(this);
+
     }
 
-    private void TrackMyroute() {
-        int places_Array [] = new int[5];
-        String place_Array []= new String[0];
-        ArrayList<String > myList = new ArrayList<String>();
-        myList.add(String.valueOf(pickpoint));
-        myList.add(String.valueOf(destination));
-        myList.add(String.valueOf(place1));
-        myList.add(String.valueOf(place2));
-        myList.add(String.valueOf(place3));
-        myList.add(String.valueOf(place4));
-        myList.add(String.valueOf(place5));
+    private String getDirectionsUrl(LatLng origin,LatLng dest){
 
-        for (String x : myList){
-            System.out.println(x);
+        // Origin of route
+        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+
+        // Sensor enabled
+        String sensor = "sensor=false";
+
+        // Building the parameters to the web service
+        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+
+        // Output format
+        String output = "json";
+
+        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+
+        return url;
+    }
+
+    @SuppressLint("LongLogTag")
+    private String downloadUrl(String strUrl) throws IOException{
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try{
+            URL url = new URL(strUrl);
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            // Connecting to url
+            urlConnection.connect();
+
+            // Reading data from url
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb  = new StringBuffer();
+
+            String line = "";
+            while( ( line = br.readLine())  != null){
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        }catch(Exception e){
+            Log.d("Exception while downloading url", e.toString());
+        }finally{
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
+    }
+
+    // Fetches data from url passed
+    private class DownloadTask extends AsyncTask<String, Void, String> {
+
+        // Downloading data in non-ui thread
+        @Override
+        protected String doInBackground(String... url) {
+
+            // For storing data from web service
+            String data = "";
+
+            try{
+                // Fetching the data from web service
+                data = downloadUrl(url[0]);
+            }catch(Exception e){
+                Log.d("Background Task",e.toString());
+            }
+            return data;
+        }
+
+        // Executes in UI thread, after the execution of
+        // doInBackground()
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            ParserTask parserTask = new ParserTask();
+
+            // Invokes the thread for parsing the JSON data
+            parserTask.execute(result);
         }
     }
+
+
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>>>{
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try{
+                jObject = new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+
+                // Starts parsing data
+                routes = parser.parse(jObject);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points = null;
+            PolylineOptions lineOptions = null;
+            MarkerOptions markerOptions = new MarkerOptions();
+
+            // Traversing through all the routes
+            for(int i=0;i<result.size();i++){
+                points = new ArrayList<LatLng>();
+                lineOptions = new PolylineOptions();
+
+                // Fetching i-th route
+                List<HashMap<String, String>> path = result.get(i);
+
+                // Fetching all the points in i-th route
+                for(int j=0;j<path.size();j++){
+                    HashMap<String,String> point = path.get(j);
+
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
+
+                    points.add(position);
+                }
+
+                // Adding all the points in the route to LineOptions
+                lineOptions.addAll(points);
+                lineOptions.width(2);
+                lineOptions.color(Color.RED);
+            }
+
+            // Drawing polyline in the Google Map for the i-th route
+            mMap.addPolyline(lineOptions);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
 
     private boolean CheckGooglePlayServices() {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
@@ -154,6 +325,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return true;
     }
 
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -164,6 +337,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         PolylineOptions polylineOptions = new PolylineOptions().add(pickpoint).add(destination).width(5).color(Color.BLUE).geodesic(true);
         mMap.addPolyline(polylineOptions);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickpoint,15));
+
+
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+        for (int z = 0; z < list.size(); z++) {
+            LatLng point = list.get(z);
+            options.add(point);
+        }
+        mMap.addPolyline(options);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
@@ -181,19 +362,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(this);
         mMap.addPolyline(polylineOptions);
 
-
-
-//        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]
-//                            {Manifest.permission.ACCESS_FINE_LOCATION},
-//                    REQUEST_LOCATION_PERMISSION);
-//
-//            return;
+//        for(LatLng location : locations){
+//            mMap.addMarker(new MarkerOptions()
+//                    .position(location)
+//                    .title("your route"));
 //        }
-//        mMap.setMyLocationEnabled(true);
-//        mMap.setBuildingsEnabled(true);
+        for(int i=0; i<locations.size();i++){
+            mMap.addMarker(new MarkerOptions()
+                    .title("your route"));
+
+        }
+
+
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -203,6 +383,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+
     }
 
     public void onClick(View v)
@@ -428,28 +609,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    public static void TrackMyroute(String [] args){
-        int places_Array [] = new int[5];
-        String place_Array []= new String[0];
-        ArrayList<String > myList = new ArrayList<String>();
-        myList.add(String.valueOf(pickpoint));
-        myList.add(String.valueOf(destination));
-        myList.add(String.valueOf(place1));
-        myList.add(String.valueOf(place2));
-        myList.add(String.valueOf(place3));
-        myList.add(String.valueOf(place4));
-        myList.add(String.valueOf(place5));
-
-        for (String x : myList){
-            System.out.println(x);
-        }
-
-
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.

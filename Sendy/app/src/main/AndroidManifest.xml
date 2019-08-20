@@ -3,10 +3,6 @@
     package="com.example.sendy">
 
 
-
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="18" />
     <permission
         android:name="com.javapapers.android.maps.path.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
@@ -62,7 +58,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".MapsActivity" />
-        <activity android:name=".Camera" />
 
         <meta-data
             android:name="com.google.android.gms.version"
