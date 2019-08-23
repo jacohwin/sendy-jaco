@@ -1,28 +1,27 @@
 package com.example.sendy;
+import android.Manifest;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
+
 import android.view.View;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.sendy.directionHelpers.FetchURL;
 import com.example.sendy.directionHelpers.TaskLoadedCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -35,49 +34,25 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.libraries.places.api.internal.impl.net.pablo.PlaceResult;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Iterator;
 
-
-
-
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, TaskLoadedCallback , GoogleApiClient.ConnectionCallbacks,
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
         GoogleMap.OnMarkerClickListener,
-        GoogleMap.OnMarkerDragListener{
+        GoogleMap.OnMarkerDragListener
+{
 
     private GoogleMap mMap;
-    Button getDirection;
-    private Polyline currentPolyline;
-    private static final int REQUEST_LOCATION_PERMISSION = 254;
-    private static final LatLng pickpoint = new LatLng(-1.3033805, 36.7729652);
-    private static final LatLng destination = new LatLng(-1.2542035, 36.674212);
-    private static final LatLng place1 = new LatLng(-1.3032051,36.7073074);
-    private static final LatLng place2 = new LatLng(-1.2073188,36.8970392);
-    private static final LatLng place3 = new LatLng(-1.2477467,36.8646907);
-    private static final LatLng place4 = new LatLng(-1.2613673,36.808896);
-    private static final LatLng place5 = new LatLng(-1.2810919,36.8092147);
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
@@ -87,56 +62,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     double end_latitude, end_longitude;
 
 
-    private static final LatLng LOWER_MANHATTAN = new LatLng(40.722543,
-            -73.998585);
-    private static final LatLng BROOKLYN_BRIDGE = new LatLng(40.7057, -73.9964);
-    private static final LatLng WALL_STREET = new LatLng(40.7064, -74.0094);
-
-    final String TAG = "MapActivity";
-
-
-
-    final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-    final SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm", Locale.US);
-    private Marker selectedMarker;
-    private SupportMapFragment mapFragment;
-
-    ArrayList<LatLng> list = new ArrayList<>();
-    ArrayList<LatLng> locations;
-    ArrayList<LatLng> markerPoints;
-
-
-
-
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        getDirection = findViewById(R.id.btnGetDirection);
-
-
-        markerPoints = new ArrayList<LatLng>();
-
-
-
-
-        list.add(new LatLng(-1.3033805, 36.7729652));
-        list.add(new LatLng(-1.3032051,36.7073074));
-        list.add(new LatLng(-1.2073188,36.8970392));
-        list.add(new LatLng(-1.2477467,36.8646907));
-        list.add(new LatLng(-1.2613673,36.808896));
-        list.add(new LatLng(-1.2810919,36.8092147));
-        list.add(new LatLng(-1.2542035, 36.674212));
-
-        locations = new ArrayList();
-        locations.add(new LatLng(-1.3033805, 36.7729652));
-        locations.add(new LatLng(-1.3032051,36.7073074));
-        locations.add(new LatLng(-1.2073188,36.8970392));
-        locations.add(new LatLng(-1.2477467,36.8646907));
-        locations.add(new LatLng(-1.2613673,36.808896));
-        locations.add(new LatLng(-1.2810919,36.8092147));
-        locations.add(new LatLng(-1.2542035, 36.674212));
-
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -151,166 +80,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Log.d("onCreate","Google Play Services available.");
         }
 
-        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        supportMapFragment.getMapAsync(this);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
 
     }
-
-    private String getDirectionsUrl(LatLng origin,LatLng dest){
-
-        // Origin of route
-        String str_origin = "origin="+origin.latitude+","+origin.longitude;
-
-        // Destination of route
-        String str_dest = "destination="+dest.latitude+","+dest.longitude;
-
-        // Sensor enabled
-        String sensor = "sensor=false";
-
-        // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor;
-
-        // Output format
-        String output = "json";
-
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
-
-        return url;
-    }
-
-    @SuppressLint("LongLogTag")
-    private String downloadUrl(String strUrl) throws IOException{
-        String data = "";
-        InputStream iStream = null;
-        HttpURLConnection urlConnection = null;
-        try{
-            URL url = new URL(strUrl);
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-
-            // Connecting to url
-            urlConnection.connect();
-
-            // Reading data from url
-            iStream = urlConnection.getInputStream();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
-
-            StringBuffer sb  = new StringBuffer();
-
-            String line = "";
-            while( ( line = br.readLine())  != null){
-                sb.append(line);
-            }
-
-            data = sb.toString();
-
-            br.close();
-
-        }catch(Exception e){
-            Log.d("Exception while downloading url", e.toString());
-        }finally{
-            iStream.close();
-            urlConnection.disconnect();
-        }
-        return data;
-    }
-
-    // Fetches data from url passed
-    private class DownloadTask extends AsyncTask<String, Void, String> {
-
-        // Downloading data in non-ui thread
-        @Override
-        protected String doInBackground(String... url) {
-
-            // For storing data from web service
-            String data = "";
-
-            try{
-                // Fetching the data from web service
-                data = downloadUrl(url[0]);
-            }catch(Exception e){
-                Log.d("Background Task",e.toString());
-            }
-            return data;
-        }
-
-        // Executes in UI thread, after the execution of
-        // doInBackground()
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            ParserTask parserTask = new ParserTask();
-
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result);
-        }
-    }
-
-
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>>>{
-        @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
-
-            JSONObject jObject;
-            List<List<HashMap<String, String>>> routes = null;
-
-            try{
-                jObject = new JSONObject(jsonData[0]);
-                DirectionsJSONParser parser = new DirectionsJSONParser();
-
-                // Starts parsing data
-                routes = parser.parse(jObject);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            return routes;
-        }
-
-        @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-            ArrayList<LatLng> points = null;
-            PolylineOptions lineOptions = null;
-            MarkerOptions markerOptions = new MarkerOptions();
-
-            // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
-                points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
-
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.get(i);
-
-                // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
-
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
-
-                    points.add(position);
-                }
-
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(2);
-                lineOptions.color(Color.RED);
-            }
-
-            // Drawing polyline in the Google Map for the i-th route
-            mMap.addPolyline(lineOptions);
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
 
     private boolean CheckGooglePlayServices() {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
@@ -326,26 +101,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        Log.d("mylog", "Added Markers");
-//        mMap.addMarker(place1);
-//        mMap.addMarker(place2);
 
-        PolylineOptions polylineOptions = new PolylineOptions().add(pickpoint).add(destination).width(5).color(Color.BLUE).geodesic(true);
-        mMap.addPolyline(polylineOptions);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickpoint,15));
-
-
-        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-        for (int z = 0; z < list.size(); z++) {
-            LatLng point = list.get(z);
-            options.add(point);
-        }
-        mMap.addPolyline(options);
-
+        //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
@@ -360,21 +120,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerDragListener(this);
         mMap.setOnMarkerClickListener(this);
-        mMap.addPolyline(polylineOptions);
-
-//        for(LatLng location : locations){
-//            mMap.addMarker(new MarkerOptions()
-//                    .position(location)
-//                    .title("your route"));
-//        }
-        for(int i=0; i<locations.size();i++){
-            mMap.addMarker(new MarkerOptions()
-                    .title("your route"));
-
-        }
-
 
     }
+
+
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -383,20 +132,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
-
     }
 
     public void onClick(View v)
     {
         Object dataTransfer[] = new Object[2];
         GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+        DataParser dataParser = new DataParser();
 
 
         switch(v.getId()) {
             case R.id.B_search: {
                 EditText tf_location = (EditText) findViewById(R.id.TF_location);
                 String location = tf_location.getText().toString();
-                List<android.location.Address> addressList = null;
+                List<Address> addressList = null;
                 MarkerOptions markerOptions = new MarkerOptions();
                 Log.d("location = ", location);
 
@@ -444,7 +193,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 dataTransfer[1] = url;
 
                 getNearbyPlacesData.execute(dataTransfer);
-                Toast.makeText(MapActivity.this, "Showing Nearby restaurant", Toast.LENGTH_LONG).show();
+                Toast.makeText(MapActivity.this, "Showing Nearby Restaurants", Toast.LENGTH_LONG).show();
                 break;
             case R.id.B_school:
                 mMap.clear();
@@ -452,11 +201,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 dataTransfer = new Object[2];
                 url = getUrl(latitude, longitude, school);
                 getNearbyPlacesData = new GetNearbyPlacesData();
+                dataParser = new DataParser();
                 dataTransfer[0] = mMap;
                 dataTransfer[1] = url;
 
                 getNearbyPlacesData.execute(dataTransfer);
-                Toast.makeText(MapActivity.this, "Showing Nearby schools", Toast.LENGTH_LONG).show();
+                Toast.makeText(MapActivity.this, "Showing Nearby Schools", Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.B_to:
@@ -467,6 +217,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 dataTransfer[1] = url;
                 dataTransfer[2] = new LatLng(end_latitude, end_longitude);
                 getDirectionsData.execute(dataTransfer);
+                Toast.makeText(MapActivity.this, "Showing your direction", Toast.LENGTH_LONG).show();
+
 
                 break;
 
@@ -496,31 +248,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return (googlePlacesUrl.toString());
     }
 
-    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
-        // Origin of route
-        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
-        // Destination of route
-        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-        // Mode
-        String mode = "mode=" + directionMode;
-        // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + mode;
-        // Output format
-        String output = "json";
-        // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
-        return url;
-    }
+
+
 
     @Override
-    public void onTaskDone(Object... values) {
-        if (currentPolyline != null)
-//            currentPolyline.remove();
-        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
+    public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
@@ -530,8 +262,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
-
     }
+
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -539,40 +272,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
-
         Log.d("onLocationChanged", "entered");
 
         mLastLocation = location;
@@ -606,11 +306,48 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Log.d("onLocationChanged", "Removing Location Updates");
         }
 
-
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public boolean checkLocationPermission(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Asking user if explanation is needed
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -661,12 +398,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
-
         end_latitude = marker.getPosition().latitude;
         end_longitude =  marker.getPosition().longitude;
 
         Log.d("end_lat",""+end_latitude);
         Log.d("end_lng",""+end_longitude);
-
     }
 }

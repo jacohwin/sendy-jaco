@@ -12,6 +12,7 @@ import java.util.List;
 
 class DataParser {
 
+
     private HashMap<String,String> getDuration(JSONArray googleDirectionsJson)
     {
         HashMap<String,String> googleDirectionsMap = new HashMap<>();

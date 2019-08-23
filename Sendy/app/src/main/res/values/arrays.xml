@@ -9,4 +9,5 @@
         <item>reply</item>
         <item>reply_all</item>
     </string-array>
+    <string-array name="list_of_countries" />
 </resources>
