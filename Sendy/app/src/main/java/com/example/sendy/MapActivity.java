@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.internal.impl.net.pablo.PlaceResult;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -60,6 +61,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     int PROXIMITY_RADIUS = 10000;
     double latitude, longitude;
     double end_latitude, end_longitude;
+    ArrayList<LatLng> MarkerPoints;
 
 
     @Override
@@ -70,6 +72,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
+
+        MarkerPoints = new ArrayList<>();
 
         //Check if Google Play Services Available or not
         if (!CheckGooglePlayServices()) {

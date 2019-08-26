@@ -32,7 +32,6 @@
 
         <activity android:name=".CameraActivity"
             android:label="Camera"/>
-        <activity android:name=".PathGoogleMapActivity" />
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile" />
