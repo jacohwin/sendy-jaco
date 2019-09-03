@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,8 +39,15 @@ public class LoginActivity extends AppCompatActivity {
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
         btnLogin = (Button) findViewById(R.id.sign_in_button);
 
+
+
+        ProgressBar pb =  findViewById(R.id.loadingProgress);
+
+
         btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override            public void onClick(View view) {
+            @Override
+            public void onClick(View view) {
+                pb.setVisibility(View.VISIBLE);
                 final String email = inputEmail.getText().toString();
                 final String password = inputPassword.getText().toString();
 
@@ -47,6 +55,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (password.length() > 0 && email.length() > 0) {
                         PD.show();
+
                         auth.signInWithEmailAndPassword(email, password)
                                 .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                                     @Override
@@ -59,7 +68,10 @@ public class LoginActivity extends AppCompatActivity {
                                             startActivity(intent);
                                             finish();
                                         }
+                                        pb.setVisibility(View.GONE);
+
                                         PD.dismiss();
+
                                     }
                                 });
                     } else {
@@ -77,6 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                pb.setVisibility(View.VISIBLE);
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
             }

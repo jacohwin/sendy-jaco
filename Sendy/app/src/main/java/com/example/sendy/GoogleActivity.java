@@ -184,6 +184,7 @@ public class GoogleActivity extends AppCompatActivity implements OnMapReadyCallb
         return url;
     }
 
+    @SuppressLint("LongLogTag")
     private String downloadUrl(String strUrl) throws IOException{
         String data = "";
         InputStream iStream = null;

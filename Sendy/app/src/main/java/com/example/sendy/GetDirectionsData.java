@@ -17,6 +17,7 @@ public class GetDirectionsData extends AsyncTask<Object,String,String> {
     String googleDirectionsData;
     String duration, distance;
     LatLng latLng;
+    String TAG = "GetDirectionData";
     @Override
     protected String doInBackground(Object... objects) {
         mMap = (GoogleMap)objects[0];
@@ -48,6 +49,7 @@ public class GetDirectionsData extends AsyncTask<Object,String,String> {
     public void displayDirection(String[] directionsList)
     {
 
+        try{
         int count = directionsList.length;
         for(int i = 0;i<count;i++)
         {
@@ -58,4 +60,9 @@ public class GetDirectionsData extends AsyncTask<Object,String,String> {
 
             mMap.addPolyline(options);
         }
-    }}
+    }catch (Exception e){
+            Log.d(TAG, e.getMessage());
+        }
+
+        }
+    }

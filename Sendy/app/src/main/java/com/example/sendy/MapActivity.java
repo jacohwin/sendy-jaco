@@ -7,12 +7,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import android.view.View;
@@ -44,6 +46,7 @@ import com.google.android.libraries.places.api.internal.impl.net.pablo.PlaceResu
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import com.skyfishjy.library.RippleBackground;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -62,6 +65,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     double latitude, longitude;
     double end_latitude, end_longitude;
     ArrayList<LatLng> MarkerPoints;
+    private Button btnFind;
+    private RippleBackground rippleBg;
+
 
 
     @Override
@@ -84,9 +90,32 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             Log.d("onCreate","Google Play Services available.");
         }
 
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+//        btnFind = findViewById(R.id.btn_find);
+//        rippleBg = findViewById(R.id.ripple_bg);
+
+
+//        btnFind.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                LatLng currentMarkerLocation = mMap.getCameraPosition().target;
+//                rippleBg.startRippleAnimation();
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        rippleBg.stopRippleAnimation();
+//                        startActivity(new Intent(MapActivity.this, DateActivity.class));
+//                        finish();
+//                    }
+//                }, 3000);
+//
+//            }
+//        });
+
 
 
     }

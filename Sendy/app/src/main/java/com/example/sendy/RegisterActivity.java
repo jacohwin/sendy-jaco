@@ -50,7 +50,8 @@ public class RegisterActivity extends AppCompatActivity {
         btnLogin = (Button) findViewById(R.id.sign_in_button);
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override            public void onClick(View view) {
+            @Override
+            public void onClick(View view) {
                 final String email = inputEmail.getText().toString();
                 final String password = inputPassword.getText().toString();
 

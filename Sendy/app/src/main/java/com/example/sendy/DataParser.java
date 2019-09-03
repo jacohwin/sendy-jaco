@@ -12,6 +12,7 @@ import java.util.List;
 
 class DataParser {
 
+    String TAG = "DataParser";
 
     private HashMap<String,String> getDuration(JSONArray googleDirectionsJson)
     {
@@ -138,19 +139,23 @@ class DataParser {
 
     public String[] getPaths(JSONArray googleStepsJson )
     {
-        int count = googleStepsJson.length();
-        String[] polylines = new String[count];
+        try {
+            int count = googleStepsJson.length();
+            String[] polylines = new String[count];
 
-        for(int i = 0;i<count;i++)
-        {
-            try {
-                polylines[i] = getPath(googleStepsJson.getJSONObject(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            for (int i = 0; i < count; i++) {
+                try {
+                    polylines[i] = getPath(googleStepsJson.getJSONObject(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        }
 
-        return polylines;
+            return polylines;
+        }catch(NullPointerException e){
+            Log.d(TAG,e.getMessage() );
+            return null;
+        }
     }
 
     public String getPath(JSONObject googlePathJson)
@@ -163,7 +168,6 @@ class DataParser {
         }
         return polyline;
     }
-
 
 
 }
